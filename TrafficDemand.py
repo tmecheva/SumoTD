@@ -64,112 +64,112 @@ CarFollowingModel = [{'name':'Krauss','params':[('minGap',minGap),('accel',accel
 --routing-algorithm dijkstra, astar, CH, CHWrapper
 
 '''
+class TrafficDemand:
+    def __init__(self,cfgfile):
+        self.cfgfile = cfgfile
 
+    def CallFLowRouter(self,interval):
+        i=str(interval)
+        command = "python3 "+paths.sumo_tools_path+"detector/flowrouter.py -n "+paths.network_path+" -d "+paths.simulation_path+"/detectors.xml -f "+self.cfgfile   +" -o "+paths.out_path+"route"+i+".xml -e "+paths.out_path+"flow"+i+".xml -i "+i+" --lane-based -v -y 'type=\"vdist1\"'"            
+        subprocess.run(command,shell=True)    
 
-def CallFLowRouter(interval,cfgfile):
-    i=str(interval)
-    command = "python3 "+paths.sumo_tools_path+"detector/flowrouter.py -n "+paths.network_path+" -d "+paths.simulation_path+"/detectors.xml -f "+paths.config_path+cfgfile+" -o "+paths.out_path+"route"+i+".xml -e "+paths.out_path+"flow"+i+".xml -i "+i+" --lane-based -v -y 'type=\"vdist1\"'"            
-    subprocess.run(command,shell=True)    
+    def CallDuaRouter(self):
+        command='duarouter -c '+paths.out_path+'duaCFG.xml'
+        subprocess.run(command,shell=True)
+    
+    def CallSumo(self):
+        command="sumo -c "+paths.simulation_path+"osm.sumocfg"
+        subprocess.run(command,shell=True)
+    
+    def ConfigDua(self,interval,config):
+        tree = ET.parse(paths.out_path+'duaCFG.xml')
+        root = tree.getroot()
+        df = pd.DataFrame(columns = ['Config', 'Error', 'Collision'])
+        for algorithm in routingAlgorithm:
+            for el in root:
+                for subel in el:
+                    if subel.tag == 'routing-algorithm':
+                        subel.set('value',algorithm)
+            r = config.replace('<vType id="vdist1" vClass="passenger" color="1,0,0"','').replace('/>','') + 'interval="'+str(interval)+'/" alg=/"'+algorithm
+            tree.write(paths.out_path+'duaCFG.xml')
+            self.CallDuaRouter()
+            self.CallSumo()
+            df =df.append(self.CalculateResult(r),ignore_index=True)
+        return df
 
-def CallDuaRouter():
-    #for alg in routingAlgorithm:
-    command='duarouter -c '+paths.out_path+'duaCFG.xml'
-    subprocess.run(command,shell=True)
+    def CalculateResult(self,config):
+        StatTree = ET.parse(paths.simulation_path+'stat.xml')
+        root=StatTree.getroot()
+        for child in root.iter():
+            if child.tag == 'safety':
+                collision=child.get('collisions')
+        Ofl = OF.OutputFlows(self.cfgfile)
+        error = Ofl.Compare()
+        row={'Config':config,'Error':error,'Collision':collision}
+        return row      
     
-def CallSumo():
-    command="sumo -c "+paths.simulation_path+"osm.sumocfg"
-    subprocess.run(command,shell=True)
+    def CreateFlowFile(self,i,line):
+        flowfile=paths.out_path+'flow'+str(i)+'.xml'
+        ff = open(flowfile)
+        nf = open(paths.out_path+'flow.xml', 'a')
+        shutil.copyfile(paths.out_path+'route'+str(i)+'.xml',paths.out_path+'route.xml')
+        doIHaveToCopyTheLine=False
+        for l in ff.readlines():
+            nf.write(l)
+            if '<additional>' in l:
+                doIHaveToCopyTheLine=True
+            if doIHaveToCopyTheLine:
+                nf.write(line)
+                doIHaveToCopyTheLine=False                                
+        ff.close()
+        nf.close()
+        df = self.ConfigDua(i,line)
+        os.remove(paths.out_path+'flow.xml')
+        os.remove(paths.out_path+'route.xml')
+        return df
     
-def ConfigDua(interval,config):
-    tree = ET.parse(paths.out_path+'duaCFG.xml')
-    root = tree.getroot()
-    df = pd.DataFrame(columns = ['Config', 'Error', 'Collision'])
-    #for rch in routeChoice:
-    for algorithm in routingAlgorithm:
-        for el in root:
-            for subel in el:
-                if subel.tag == 'routing-algorithm':
-                    subel.set('value',algorithm)
-        r = config.replace('<vType id="vdist1" vClass="passenger" color="1,0,0"','').replace('/>','') + 'interval="'+str(interval)+'/" alg=/"'+algorithm
-        tree.write(paths.out_path+'duaCFG.xml')
-        CallDuaRouter()
-        CallSumo()
-        df =df.append(CalculateResult(r),ignore_index=True)
-    return df
-
-def CalculateResult(config):
-    StatTree = ET.parse(paths.simulation_path+'stat.xml')
-    root=StatTree.getroot()
-    for child in root.iter():
-        if child.tag == 'safety':
-            collision=child.get('collisions')
-    Ofl = OF.OutputFlows()
-    error = Ofl.Compare()
-    row={'Config':config,'Error':error,'Collision':collision}
-    return row      
-    
-def CreateFlowFile(i,line):
-    flowfile=paths.out_path+'flow'+str(i)+'.xml'
-    ff = open(flowfile)
-    nf = open(paths.out_path+'flow.xml', 'a')
-    shutil.copyfile(paths.out_path+'route'+str(i)+'.xml',paths.out_path+'route.xml')
-    doIHaveToCopyTheLine=False
-    for l in ff.readlines():
-        nf.write(l)
-        if '<additional>' in l:
-            doIHaveToCopyTheLine=True
-        if doIHaveToCopyTheLine:
-            nf.write(line)
-            doIHaveToCopyTheLine=False                                
-    ff.close()
-    nf.close()
-    df = ConfigDua(i,line)
-    os.remove(paths.out_path+'flow.xml')
-    os.remove(paths.out_path+'route.xml')
-    return df
-    
-def CalculateKrauss(ofile,i):
-    result = pd.DataFrame(columns = ['Config', 'Error', 'Collision'])
-    for m in range(0,len(minGap)):
-        for a in range(0,len(accel)):
-            for d in range(0,len(decel)):
-                for e in range(0,len(emergencyDecel)):
-                    for s in range(0,len(sigma)):
-                        for t in range(0,len(tau)):
-                            line='\t<vType id="vdist1" vClass="passenger" color="1,0,0" carFollowModel="Krauss"'+' minGap="'+str(minGap[m])+'" accel="'+str(accel[a])+'" decel="'+str(decel[d])+'" emergencyDecel="'+str(emergencyDecel[e]+decel[d])+'" sigma="'+str(sigma[s])+'" tau="'+str(tau[t])+'" />'+'\n'
-                            df = CreateFlowFile(i,line)
-                            result.append(df,ignore_index=True)
-    result.to_csv(ofile)
+    def CalculateKrauss(self,ofile,i):
+        result = pd.DataFrame(columns = ['Config', 'Error', 'Collision'])
+        for m in range(0,len(minGap)):
+            for a in range(0,len(accel)):
+                for d in range(0,len(decel)):
+                    for e in range(0,len(emergencyDecel)):
+                        for s in range(0,len(sigma)):
+                            for t in range(0,len(tau)):
+                                line='\t<vType id="vdist1" vClass="passenger" color="1,0,0" carFollowModel="Krauss"'+' minGap="'+str(minGap[m])+'" accel="'+str(accel[a])+'" decel="'+str(decel[d])+'" emergencyDecel="'+str(emergencyDecel[e]+decel[d])+'" sigma="'+str(sigma[s])+'" tau="'+str(tau[t])+'" />'+'\n'
+                                df = self.CreateFlowFile(i,line)
+                                result.append(df,ignore_index=True)
+        result.to_csv(ofile)
                             
-def CalculateKraussOrig1(opath,i):
-    result = pd.DataFrame(columns = ['Config', 'Error', 'Collision'])
-    for m in minGap:
-        for t in tau:
-            line='\t<vType id="vdist1" vClass="passenger" color="1,0,0" carFollowModel="KraussOrig1"'+' minGap="'+str(m)+'" tau="'+str(t)+'"/>'+'\n'
-            df = CreateFlowFile(i,line)
-            result = result.append(df,ignore_index=True)
-    ofile = opath+"KraussOrig1/"+str(i)+".csv"
-    result.to_csv(ofile)
+    def CalculateKraussOrig1(self,opath,i):
+        result = pd.DataFrame(columns = ['Config', 'Error', 'Collision'])
+        for m in minGap:
+            for t in tau:
+                line='\t<vType id="vdist1" vClass="passenger" color="1,0,0" carFollowModel="KraussOrig1"'+' minGap="'+str(m)+'" tau="'+str(t)+'"/>'+'\n'
+                df = self.CreateFlowFile(i,line)
+                result = result.append(df,ignore_index=True)
+        ofile = opath+"KraussOrig1/"+str(i)+".csv"
+        result.to_csv(ofile)
                             
-def CalculatePWagner2009(ofile,i):
-    result = pd.DataFrame(columns = ['Config', 'Error', 'Collision'])
-    for m in range(0,len(minGap)):
-        for t in range(0,len(tau)):
-            line='<vType id="vdist1" vClass="passenger" color="1,0,0" carFollowModel="PWagner2009"'+' minGap="'+str(minGap[m])+'" tau="'+str(tau[t])+'"/>'+'\n'
-            df = CreateFlowFile(i,line)
-            result.append(df,ignore_index=True)
-    result.to_csv(ofile)
+    def CalculatePWagner2009(self,ofile,i):
+        result = pd.DataFrame(columns = ['Config', 'Error', 'Collision'])
+        for m in range(0,len(minGap)):
+            for t in range(0,len(tau)):
+                line='<vType id="vdist1" vClass="passenger" color="1,0,0" carFollowModel="PWagner2009"'+' minGap="'+str(minGap[m])+'" tau="'+str(tau[t])+'"/>'+'\n'
+                df = self.CreateFlowFile(i,line)
+                result.append(df,ignore_index=True)
+        result.to_csv(ofile)
                             
-def CalculateWiedemann(ofile,i):
-    result = pd.DataFrame(columns = ['Config', 'Error', 'Collision'])
-    for m in range(0,len(minGap)):
-        for s in range(0,len(security)):
-            for e in range(0,len(estimation)):
-                for t in range(0,len(tau)):
-                    line='/t<vType id="vdist1" vClass="passenger" color="1,0,0" carFollowModel="Wiedemann"'+' minGap="'+str(minGap[m])+'" security="'+str(security[s])+'" estimation="'+str(estimation[e])+'" tau="'+str(tau[t])+'"/>'+'\n'
-                    df = CreateFlowFile(i,line)
-                    result.append(df,ignore_index=True)
-    result.to_csv(ofile)
+    def CalculateWiedemann(self,ofile,i):
+        result = pd.DataFrame(columns = ['Config', 'Error', 'Collision'])
+        for m in range(0,len(minGap)):
+            for s in range(0,len(security)):
+                for e in range(0,len(estimation)):
+                    for t in range(0,len(tau)):
+                        line='/t<vType id="vdist1" vClass="passenger" color="1,0,0" carFollowModel="Wiedemann"'+' minGap="'+str(minGap[m])+'" security="'+str(security[s])+'" estimation="'+str(estimation[e])+'" tau="'+str(tau[t])+'"/>'+'\n'
+                        df = self.CreateFlowFile(i,line)
+                        result.append(df,ignore_index=True)
+        result.to_csv(ofile)
         
 
 

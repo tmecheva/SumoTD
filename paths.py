@@ -1,4 +1,4 @@
-simulation_path = "/home/tedy/Sumo/2022-01-19-17-10-39/"
+simulation_path = "/home/tedy/Sumo/myscript/simulation/"
 network_path=simulation_path+'updated.net.xml'
 sumo_tools_path = "/usr/share/sumo/tools/"
 data_path = "/home/tedy/Sumo/Data/"

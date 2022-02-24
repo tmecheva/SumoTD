@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2022-02-24 17:56:42 by Eclipse SUMO sumo Version 1.10.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="/home/tedy/Sumo/myscript/simulation/updated.net.xml"/>
+        <route-files value="/home/tedy/Sumo/Data/Out/DUAout.xml"/>
+        <additional-files value="/home/tedy/Sumo/myscript/simulation/additional.xml,/home/tedy/Sumo/Data/Out/Vtype.xml"/>
+    </input>
+
+    <output>
+        <statistic-output value="/home/tedy/Sumo/myscript/simulation/stat.xml"/>
+    </output>
+
+    <time>
+        <end value="86400"/>
+    </time>
+
+    <processing>
+        <ignore-route-errors value="true"/>
+        <collision.action value="teleport"/>
+        <time-to-teleport value="3600"/>
+    </processing>
+
+    <routing>
+        <device.rerouting.adaptation-steps value="18"/>
+        <device.rerouting.adaptation-interval value="10"/>
+    </routing>
+
+    <report>
+        <verbose value="true"/>
+        <log value="/home/tedy/Sumo/myscript/simulation/log.xml"/>
+        <duration-log.statistics value="true"/>
+    </report>
+
+    <gui_only>
+        <gui-settings-file value="/home/tedy/Sumo/myscript/simulation/osm.view.xml"/>
+    </gui_only>
+
+</configuration>

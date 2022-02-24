@@ -4,10 +4,10 @@ import numpy as np
 import paths
 
 class OutputFlows:
-    def __init__(self):
+    def __init__(self,input_cfg):
         self.OutTree = ET.parse(paths.simulation_path+'out.xml')
 
-        self.dfIn = pd.read_csv(paths.input_cfg,sep=";")
+        self.dfIn = pd.read_csv(input_cfg,sep=";")
         self.path = paths.result_path
         self.dfOut=pd.DataFrame(columns = ["Detector","Time","qPKWcalc"])
     
