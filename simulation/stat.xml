@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2022-02-24 17:56:42 by Eclipse SUMO sumo Version 1.10.0
+<!-- generated on 2022-05-13 17:40:45 by Eclipse SUMO sumo Version 1.10.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
         <net-file value="/home/tedy/Sumo/myscript/simulation/updated.net.xml"/>
-        <route-files value="/home/tedy/Sumo/Data/Out/DUAout.xml"/>
-        <additional-files value="/home/tedy/Sumo/myscript/simulation/additional.xml,/home/tedy/Sumo/Data/Out/Vtype.xml"/>
+        <route-files value="/home/tedy/Sumo/Data/Out/wcfg/10/dijkstra/wcfgi10Wadijkstrag1t05Dua.xml"/>
+        <additional-files value="/home/tedy/Sumo/myscript/simulation/additional.xml"/>
     </input>
 
     <output>
