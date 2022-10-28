@@ -1,10 +1,11 @@
 import sys
 import TrafficDemand as TD
-import paths
-interval = [10,20,30,40]
-configFiles = ["wcfg.csv","hcfg.csv"]
-
-#wconfig interval routingAlg minGap tau
-
+import header
+           
 td = TD.TrafficDemand()
-td.CalculatePWagner2009(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5])
+for cfg in header.configFiles:
+    for i in header.interval:
+        for alg in header.routingAlgorithm:
+            for gap in header.minGap:
+                for t in header.tau:
+                    td.CalculatePWagner2009(cfg,i,alg,gap,t)
