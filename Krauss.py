@@ -1,10 +1,17 @@
 import sys
 import TrafficDemand as TD
-import paths
-interval = [10,20,30,40]
-configFiles = ["wcfg.csv","hcfg.csv"]
+import header
 
-#wconfig interval minGap accel decel emergencyDecel sigma tau
+#cfgfile,interval,routingAlgorithm,minGap,accel,decel,emergencyDecel,sigma,tau
 
 td = TD.TrafficDemand()
-td.CalculateKrauss(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7],sys.argv[8],sys.argv[9])
+for cfg in header.configFiles:
+    for i in header.interval:
+        for ra in header.routingAlgorithm:
+            for mg in header.minGap:
+                for a in header.accel:
+                    for d in header.decel:
+                        for e in header.emergencyDecel:
+                            for s in header.sigma:
+                                for t in header.tau:
+                                    td.CalculateKrauss(cfg,str(i),ra,mg,a,d,e,s,t)
