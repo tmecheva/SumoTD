@@ -1,32 +1,16 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value="updated.net.xml" />
-        <route-files value="/home/tedy/Sumo/Data/Out/wcfg/10/dijkstra/wcfgi10Wadijkstrag1t05Dua.xml" />
-        <additional-files value="additional.xml" />
-        <time-to-teleport value="3600" />
-        <end value="86400" />
+        <net-file value="DrivingHabits.net.xml" />
+        <route-files value="/home/tedy/Sumo/script/SumoTD/Result/hCFG/hCFGi10Kadijkstrag1t125a25d4e14s0/Dua.xml" />
+        <additional-files value="/home/tedy/Sumo/script/SumoTD/Result/hCFG/hCFGi10Kadijkstrag1t125a25d4e14s0/detectors.xml" />
+        <end value="3600" />
     </input>
 
     <processing>
         <ignore-route-errors value="true" />
         <collision.action value="teleport" />
     </processing>
-    
-    <output>
-        <statistic-output value="stat.xml" />
-    </output>
-    
-    <routing>
-        <device.rerouting.adaptation-steps value="18" />
-        <device.rerouting.adaptation-interval value="10" />
-    </routing>
-
-    <report>
-        <verbose value="true" />
-        <duration-log.statistics value="true" />
-        <log value="log.xml" />
-    </report>
 
     <gui_only>
         <gui-settings-file value="osm.view.xml" />
