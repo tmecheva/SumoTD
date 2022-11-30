@@ -136,7 +136,11 @@ class TrafficDemand:
             os.makedirs(os.path.join(header.result_path,cfgfile,cfg))
             
         path = os.path.join(header.result_path,cfgfile,cfg)
-             
+        
+        self.CreateAdditionalFile(path)        
+        self.CreateFlowFile(line,path,interval,cfgfile)
+        self.CallDuaRouter(path,cfgfile,interval,routingAlgorithm)
+        self.CallSumo(interval,routingAlgorithm,path)             
            
     #interval routingAlgorithm minGap security estimation tau
     def CalculateWiedemann(self,cfgfile,interval,routingAlgorithm,minGap,security,estimation,tau):        

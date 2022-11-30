@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import header
-from datetime import datetime
+from datetime import datetime, date
 
 class ControllerReport:
     def __init__(self,path,junction):
@@ -13,23 +13,37 @@ class ControllerReport:
         self.detectors=[]
         self.num=[]
         self.timestamp=[]
-        self.df = pd.read_excel(os.path.join(path,junction+'.xlsx'))
+        self.df = pd.DataFrame()
+        subfolders= [f.path for f in os.scandir(path) if f.is_dir()]
+
+        for dirname in list(subfolders):
+            if os.path.isfile(os.path.join(dirname,junction+'.xlsx')):
+                print(os.path.join(dirname,junction+'.xlsx'))
+                df1 = pd.read_excel(os.path.join(dirname,junction+'.xlsx'),header=[1])
+                self.df = pd.concat([self.df, df1])
+        #print(junction,'rows:',len(self.df.axes[0]),'cols:',self.df.axes[1])
+        
         self.row=0
         self.df.drop([self.df.columns[1],self.df.columns[2],self.df.columns[5]], axis=1,inplace=True)
+        #self.df.rename(columns={df.columns[0]='Time',df.columns[1]='Detectors',df.columns[2]='Count'})
+        #print(junction,'rows:',len(self.df.axes[0]),'cols:',self.df.axes[1])
+        #print(self.df.head)
+        '''
         for x in range(0,self.df.shape[0]):
             self.df.drop(self.df.index[x], axis=0,inplace=True)
-            if self.df.iloc[x,0]=='Дата':
+            if str(self.df.iloc[x,0])=='Дата':
                 self.df.drop(self.df.index[x], axis=0,inplace=True)
                 break
+        '''
         
         self.Time = datetime.strptime(self.df.iloc[0,0],"%d.%m.%Y %H:%M:%S")
+        #print(self.Time)
 
     
     def WriteValues(self):
         values = pd.DataFrame(data={'Detector':self.detectors,'qPKW':self.num})
-        values.set_index('Detector',inplace=True)
-        
-        if self.Time.weekday() in [6,7]:
+        values.set_index('Detector',inplace=True)        
+        if self.Time.weekday() in [6,7] or self.Time.date == date(year=2021,day=30,month=4):# or self.Time.date == datetime.date(year=2021,month=5,day=3):
             self.hdf[self.Time.hour] = pd.merge(self.hdf[self.Time.hour],values,how="outer",left_index=True,right_index=True,suffixes=("",self.Time))
         else:
             self.wdf[self.Time.hour] = pd.merge(self.wdf[self.Time.hour],values,how="outer",left_index=True,right_index=True,suffixes=("",self.Time))
@@ -38,6 +52,7 @@ class ControllerReport:
         while self.row < self.df.shape[0]:
             currTime=datetime.strptime(self.df.iloc[self.row,0],"%d.%m.%Y %H:%M:%S")
             if self.Time != currTime:
+                print(currTime)
                 self.WriteValues()
                 self.CleanValues()
             else:
@@ -52,7 +67,7 @@ class ControllerReport:
         
     def WriteValuesToCSV(self,i):
         dfH=pd.DataFrame(index=self.hdf[i].index)
-        dfW=pd.DataFrame(index=self.hdf[i].index)
+        dfW=pd.DataFrame(index=self.wdf[i].index)
 
         dfH['Time'] = i*60
         dfW['Time'] = i*60
@@ -63,6 +78,7 @@ class ControllerReport:
         
         dfH = dfH.dropna()
         dfW = dfW.dropna()
+        #print(dfW)
         dfH.to_csv(os.path.join(header.config_path,'hCFG.csv'),mode='a',sep=';',header=False)
         dfW.to_csv(os.path.join(header.config_path,'wCFG.csv'),mode='a',sep=';',header=False)
 
@@ -90,6 +106,7 @@ def CreateConfigFiles():
     for i in range(0,23):
         for cr in CRList:
             cr.WriteValuesToCSV(i)
+    
             
 CreateConfigFiles()
         

@@ -71,7 +71,7 @@ def CalculateOutFlow(f):
         print("Simulation filliour", os.path.split(os.path.split(f)[0])[1])
         return pd.DataFrame()
 
-CalculateErrors("ErrorsH")
+CalculateErrors("hCFG")
 
 
     

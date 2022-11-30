@@ -2,8 +2,8 @@
 
     <input>
         <net-file value="DrivingHabits.net.xml" />
-        <route-files value="/home/tedy/Sumo/script/SumoTD/Result/hCFG/hCFGi10Kadijkstrag1t125a25d4e14s0/Dua.xml" />
-        <additional-files value="/home/tedy/Sumo/script/SumoTD/Result/hCFG/hCFGi10Kadijkstrag1t125a25d4e14s0/detectors.xml" />
+        <route-files value="/home/tedy/Sumo/script/SumoTD/Result/hCFG/hCFGi50PWaastarg3t125/Dua.xml" />
+        <additional-files value="/home/tedy/Sumo/script/SumoTD/Result/hCFG/hCFGi50PWaastarg3t125/detectors.xml" />
         <end value="3600" />
     </input>
 
