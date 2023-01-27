@@ -5,10 +5,10 @@ import header
 
 td = TD.TrafficDemand()
 for cfg in header.configFiles:
-    for i in header.interval:
-        for alg in header.routingAlgorithm:
-            for gap in header.minGap:
-                for s in header.security:
-                    for e in header.estimation:
-                        for t in header.tau:
+    for i in header.interval:        
+        for gap in header.minGap:
+            for s in header.security:
+                for e in header.estimation:
+                    for t in header.tau:
+                        for alg in header.routingAlgorithm:
                             td.CalculateWiedemann(cfg,i,alg,gap,s,e,t)

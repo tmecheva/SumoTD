@@ -52,7 +52,7 @@ class ControllerReport:
         while self.row < self.df.shape[0]:
             currTime=datetime.strptime(self.df.iloc[self.row,0],"%d.%m.%Y %H:%M:%S")
             if self.Time != currTime:
-                print(currTime)
+                #print(currTime)
                 self.WriteValues()
                 self.CleanValues()
             else:
@@ -99,11 +99,11 @@ def CreateConfigFiles():
     CRList = []
     for j in header.junctions:
         CRList.append(ControllerReport(header.reports_path,j))
-                      
+    
     for cr in CRList:
         cr.GetValues()
         
-    for i in range(0,23):
+    for i in range(0,24):
         for cr in CRList:
             cr.WriteValuesToCSV(i)
     

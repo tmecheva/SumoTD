@@ -7,11 +7,11 @@ import header
 td = TD.TrafficDemand()
 for cfg in header.configFiles:
     for i in header.interval:
-        for ra in header.routingAlgorithm:
-            for mg in header.minGap:
-                for a in header.accel:
-                    for d in header.decel:
-                        for e in header.emergencyDecel:
-                            for s in header.sigma:
-                                for t in header.tau:
+        for mg in header.minGap:
+            for a in header.accel:
+                for d in header.decel:
+                    for e in header.emergencyDecel:
+                        for s in header.sigma:
+                            for t in header.tau:
+                                for ra in header.routingAlgorithm:
                                     td.CalculateKrauss(cfg,str(i),ra,mg,a,d,e,s,t)
