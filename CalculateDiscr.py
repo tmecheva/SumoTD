@@ -18,10 +18,11 @@ def CalculateErrors(cfg):
             ErrDF['devisor']=ErrDF['qPKW'].replace([0],1)
             ErrDF['divisible']=ErrDF['Error'].abs()
             ErrDF['ErrorP']=ErrDF['divisible'].div(ErrDF['devisor'].values)
-            meanError = ErrDF['divisible'].sum()/ErrDF['devisor'].sum()
+            meanError = ErrDF['ErrorP'].mean()
             row = pd.DataFrame(data={'Configuration':os.path.basename(fol),'Error':meanError},index=[0])
             result = pd.concat([result,row],ignore_index = True)
     result.to_csv(os.path.join(header.result_path,'ErResult.csv'))
+    return result
             
 def CalculateInFlow(f):
     dfIn = pd.read_csv(f,sep=";")
@@ -46,8 +47,17 @@ def CalculateOutFlow(f):
     except ParseError:
         print("Simulation filliour", os.path.split(os.path.split(f)[0])[1])
         return pd.DataFrame()
-
-CalculateErrors("wCFG")
+    
+def CalculateDiscrip(df):
+    DFch = df[df["Configuration"].str.contains('CH')]
+    DFD = df[df["Configuration"].str.contains('dijkstra')]
+    DFA = df[df["Configuration"].str.contains('astar')]
+    
+    result=pd.DataFrame(data={"CH":DFch.min(),"dijkstra":DFD.min(),"astar":DFA.min()})
+    result.to_csv(os.path.join(header.result_path,'MinResult.csv'))
+   
+res = CalculateErrors("wCFG")
+CalculateDiscrip(res)
 
 
     
