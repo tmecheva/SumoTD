@@ -93,7 +93,7 @@ class TrafficDemand:
         self.EraseFiles(path)
                             
     def CalculateKraussOrig(self,cfgfile,interval,routingAlgorithm,minGap,tau):       
-        line="\t<vType id=\"type1\" carFollowModel=\"PWagner2009\" minGap=\""+str(minGap)+"\" tau=\""+str(tau)+"\"/>\n"
+        line="\t<vType id=\"type1\" carFollowModel=\"KraussOrig1\" minGap=\""+str(minGap)+"\" tau=\""+str(tau)+"\"/>\n"
         
         cfg = str(cfgfile)+'i'+str(interval)+'KO'+'a'+str(routingAlgorithm)+'g'+str(minGap)+'t'+str(tau)
         cfg = cfg.replace('.','')
