@@ -75,10 +75,8 @@ class TrafficDemand:
 
 #\'vtype=\"vdist1\" vClass=\"passenger\" 
     def CalculateKrauss(self,cfgfile,interval,routingAlgorithm,minGap,accel,decel,emergencyDecel,sigma,tau):
-                
-        #line="\'color=\"1,1,1\" carFollowModel=\"Krauss\" minGap=\""+str(minGap)+"\" accel=\""+str(accel)+"\" decel=\""+str(decel)+"\" emergencyDecel=\""+str(emergencyDecel+decel)+"\" sigma=\""+str(sigma)+"\" tau=\""+str(tau)+"\"\'"
-        
-        line="\'type=\"type1\" carFollowModel=\"Krauss\" minGap=\""+str(minGap)+"\" accel=\""+str(accel)+"\" decel=\""+str(decel)+"\" emergencyDecel=\""+str(emergencyDecel+decel)+"\" sigma=\""+str(sigma)+"\" tau=\""+str(tau)+"\"\'"
+                        
+        line="\t<vType id=\"type1\" carFollowModel=\"Krauss\" minGap=\""+str(minGap)+"\" accel=\""+str(accel)+"\" decel=\""+str(decel)+"\" emergencyDecel=\""+str(emergencyDecel+decel)+"\" sigma=\""+str(sigma)+"\" tau=\""+str(tau)+"\"/>\n"
         
         cfg = str(cfgfile)+'i'+str(interval)+'K'+'a'+str(routingAlgorithm)+'g'+str(minGap)+'t'+str(tau)+'a'+str(accel)+'d'+str(decel)+'e'+str(emergencyDecel)+str(decel)+'s'+str(sigma)
         cfg = cfg.replace('.','')
@@ -89,13 +87,13 @@ class TrafficDemand:
             os.makedirs(path)
             
         self.CreateAdditionalFile(path)                    
-        self.CallFLowRouter(line,path,interval,cfgfile)
+        self.CreateFlowFile(line,path,interval,cfgfile)
         self.CallDuaRouter(path,cfgfile,interval,routingAlgorithm)
         self.CallSumo(interval,routingAlgorithm,path)
-        #self.EraseFiles(path)
+        self.EraseFiles(path)
                             
     def CalculateKraussOrig(self,cfgfile,interval,routingAlgorithm,minGap,tau):       
-        line="\'color=\"1,0,1\" carFollowModel=\"KraussOrig1\" minGap=\""+str(minGap)+"\" tau=\""+str(tau)+"\"\'"
+        line="\t<vType id=\"type1\" carFollowModel=\"PWagner2009\" minGap=\""+str(minGap)+"\" tau=\""+str(tau)+"\"/>\n"
         
         cfg = str(cfgfile)+'i'+str(interval)+'KO'+'a'+str(routingAlgorithm)+'g'+str(minGap)+'t'+str(tau)
         cfg = cfg.replace('.','')
@@ -106,14 +104,12 @@ class TrafficDemand:
         path = os.path.join(header.result_path,cfgfile,cfg)
         
         self.CreateAdditionalFile(path)        
-        self.CallFLowRouter(line,path,interval,cfgfile)
+        self.CreateFlowFile(line,path,interval,cfgfile)
         self.CallDuaRouter(path,cfgfile,interval,routingAlgorithm)
         self.CallSumo(interval,routingAlgorithm,path)
-        #self.EraseFiles(path)
+        self.EraseFiles(path)
                             
-    def CalculatePWagner2009(self,cfgfile,interval,routingAlgorithm,minGap,tau):               
-        #line="\'color=\"0,1,1\" carFollowModel=\"PWagner2009\" minGap=\""+str(minGap)+"\" tau=\""+str(tau)+"\"\'"
-        
+    def CalculatePWagner2009(self,cfgfile,interval,routingAlgorithm,minGap,tau):                      
         line="\t<vType id=\"type1\" carFollowModel=\"PWagner2009\" minGap=\""+str(minGap)+"\" tau=\""+str(tau)+"\"/>\n"
         
         cfg = str(cfgfile)+'i'+str(interval)+'PW'+'a'+str(routingAlgorithm)+'g'+str(minGap)+'t'+str(tau)
@@ -132,7 +128,7 @@ class TrafficDemand:
            
     #interval routingAlgorithm minGap security estimation tau
     def CalculateWiedemann(self,cfgfile,interval,routingAlgorithm,minGap,security,estimation,tau):        
-        line="\'color=\"1,1,1\" carFollowModel=\"Wiedemann\" minGap=\""+str(minGap)+"\" security=\""+str(security)+"\" estimation=\""+str(estimation)+"\" tau=\""+str(tau)+"\"\'"
+        line="\t<vType id=\"type1\" carFollowModel=\"Wiedemann\" minGap=\""+str(minGap)+"\" security=\""+str(security)+"\" estimation=\""+str(estimation)+"\" tau=\""+str(tau)+"\"/>\n"
         
         cfg = str(cfgfile)+'i'+str(interval)+'W'+'a'+str(routingAlgorithm)+'g'+str(minGap)+'s'+str(security)+'e'+str(estimation)+'t'+str(tau)
         cfg = cfg.replace('.','')
@@ -143,10 +139,10 @@ class TrafficDemand:
         path = os.path.join(header.result_path,cfgfile,cfg)
         
         self.CreateAdditionalFile(path)        
-        #self.CallFLowRouter(line,path,interval,cfgfile)
+        self.CreateFlowFile(line,path,interval,cfgfile)
         self.CallDuaRouter(path,cfgfile,interval,routingAlgorithm)
         self.CallSumo(interval,routingAlgorithm,path)
-        #self.EraseFiles(path)
+        self.EraseFiles(path)
 
 
         
